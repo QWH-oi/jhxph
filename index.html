@@ -1,0 +1,411 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#04080e" />
+    <meta name="color-scheme" content="dark" />
+    <meta
+      name="description"
+      content="相衡 PHASE LAB：单组分与双组分相平衡三维交互实验室，实时展示相律、相图、三相点、临界点与共沸点。"
+    />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%23040b14'/%3E%3Cpath d='M32 8 52 19.5v25L32 56 12 44.5v-25L32 8Z' fill='none' stroke='%2367e8f9' stroke-width='2'/%3E%3Ccircle cx='32' cy='32' r='5' fill='%2367e8f9'/%3E%3Cellipse cx='32' cy='32' rx='17' ry='6' transform='rotate(-28 32 32)' fill='none' stroke='%2367e8f9' stroke-width='1.4' opacity='.7'/%3E%3C/svg%3E"
+    />
+    <title>相衡 PHASE LAB · 相平衡三维交互实验室</title>
+    <script type="module" crossorigin src="./assets/index-CGXKiscG.js"></script>
+    <link rel="stylesheet" crossorigin href="./assets/index-BN2QRhjR.css">
+  </head>
+  <body>
+    <div id="app" data-mode="single">
+      <div class="ambient" aria-hidden="true">
+        <div class="ambient-orb ambient-orb-a"></div>
+        <div class="ambient-orb ambient-orb-b"></div>
+        <div class="ambient-grid"></div>
+        <div class="ambient-noise"></div>
+      </div>
+
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark" aria-hidden="true">
+            <svg viewBox="0 0 48 48" fill="none">
+              <path d="M24 4.8 40.4 14.4v19.2L24 43.2 7.6 33.6V14.4L24 4.8Z" stroke="currentColor" stroke-width="1.2" opacity=".7"/>
+              <path d="M24 10.6 35.2 17v12.4L24 35.8 12.8 29.4V17L24 10.6Z" stroke="currentColor" stroke-width=".8" opacity=".35"/>
+              <circle cx="24" cy="24" r="4.2" fill="currentColor"/>
+              <ellipse cx="24" cy="24" rx="14.2" ry="5.4" transform="rotate(-28 24 24)" stroke="currentColor" stroke-width=".9" opacity=".65"/>
+              <circle cx="35.6" cy="18.4" r="1.5" fill="currentColor"/>
+            </svg>
+          </div>
+          <div class="brand-copy">
+            <div class="brand-line">
+              <h1>相衡</h1>
+              <span class="brand-en">PHASE&nbsp;LAB</span>
+            </div>
+            <p>相平衡三维交互实验室</p>
+          </div>
+        </div>
+
+        <nav class="mode-switch" aria-label="相平衡体系切换" role="tablist">
+          <button class="mode-btn is-active" data-mode="single" role="tab" aria-selected="true">
+            <span class="mode-index">01</span>
+            单组分
+            <small>P–T</small>
+          </button>
+          <button class="mode-btn" data-mode="binary" role="tab" aria-selected="false">
+            <span class="mode-index">02</span>
+            双组分
+            <small id="binaryModeHint">T–x–y</small>
+          </button>
+          <span class="mode-glider" aria-hidden="true"></span>
+        </nav>
+
+        <div class="top-actions">
+          <div class="law-badge" title="吉布斯相律">
+            <span>GIBBS PHASE RULE</span>
+            <strong>F = C − P + 2</strong>
+          </div>
+          <div class="live-badge"><i></i>REAL-TIME</div>
+          <button id="helpBtn" class="icon-btn" type="button" title="教学说明与帮助" aria-label="教学说明与帮助">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M9.2 9.1a2.9 2.9 0 1 1 4.4 2.5c-.9.5-1.6 1.1-1.6 2.1v.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/><circle cx="12" cy="17.7" r="1.05" fill="currentColor"/></svg>
+          </button>
+          <button id="fullscreenBtn" class="icon-btn" type="button" title="全屏显示" aria-label="全屏显示">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M8 4H4v4M16 4h4v4M8 20H4v-4M16 20h4v-4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <main id="stage">
+        <canvas id="scene" aria-label="三维相平衡图，可拖拽旋转与缩放"></canvas>
+        <div class="scene-vignette" aria-hidden="true"></div>
+        <div class="scanlines" aria-hidden="true"></div>
+
+        <div class="scene-heading" id="sceneHeading">
+          <span class="scene-kicker">PHASE TOPOLOGY / 01</span>
+          <h2>单组分相图 <em>P–T</em></h2>
+          <p>水 · 固 / 液 / 气三相拓扑</p>
+        </div>
+
+        <div class="scene-legend" id="sceneLegend" aria-label="相区图例"></div>
+
+        <aside class="panel panel-left" aria-label="实验控制台">
+          <div class="panel-scroll">
+            <div class="panel-heading">
+              <span>实验控制台</span>
+              <em>CONTROL DECK</em>
+            </div>
+
+            <section class="control-section">
+              <div class="section-label"><span>体系</span><em>SYSTEM</em></div>
+              <div class="system-card" id="singleSystem">
+                <div class="system-symbol">H<sub>2</sub>O</div>
+                <div class="system-meta">
+                  <strong>水</strong>
+                  <span>单组分 · H₂O</span>
+                </div>
+                <span class="micro-chip">C = 1</span>
+              </div>
+              <label class="select-wrap" id="binarySystemWrap">
+                <span>选择双组分体系</span>
+                <select id="systemSelect" aria-label="选择双组分体系">
+                  <option value="ethanol-water">乙醇–水 · 非理想 / 共沸</option>
+                  <option value="benzene-toluene">苯–甲苯 · 理想 / 无共沸</option>
+                  <option value="bi-cd">Bi–Cd · 简单低共熔</option>
+                </select>
+              </label>
+            </section>
+
+            <section class="control-section">
+              <div class="section-label"><span>参数</span><em>PARAMETERS</em></div>
+
+              <div id="singleControls" class="controls-stack">
+                <div class="slider-group">
+                  <div class="slider-head">
+                    <label for="singleTemp">温度 <em>T</em></label>
+                    <output id="singleTempValue">298.15 K</output>
+                  </div>
+                  <input id="singleTemp" class="range" type="range" min="200" max="700" step="0.1" value="298.15" aria-label="单组分温度" />
+                  <div class="slider-foot"><span>200 K</span><span id="singleTempSub">25.00 °C</span><span>700 K</span></div>
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-head">
+                    <label for="singlePress">压强 <em>P</em></label>
+                    <output id="singlePressValue">101.3 kPa</output>
+                  </div>
+                  <input id="singlePress" class="range" type="range" min="0.7" max="7.7" step="0.005" value="5.0057" aria-label="单组分压强，对数刻度" />
+                  <div class="slider-foot"><span>5 Pa</span><span id="singlePressSub">lg P = 5.006</span><span>50 MPa</span></div>
+                </div>
+              </div>
+
+              <div id="binaryControls" class="controls-stack is-hidden">
+                <div class="slider-group">
+                  <div class="slider-head">
+                    <label for="binaryTemp">温度 <em>T</em></label>
+                    <output id="binaryTempValue">90.00 °C</output>
+                  </div>
+                  <input id="binaryTemp" class="range" type="range" min="70" max="105" step="0.05" value="90" aria-label="双组分温度" />
+                  <div class="slider-foot"><span id="binaryTempMin">70 °C</span><span id="binaryTempSub">363.15 K</span><span id="binaryTempMax">105 °C</span></div>
+                </div>
+
+                <div class="slider-group" id="binaryPressGroup">
+                  <div class="slider-head">
+                    <label for="binaryPress">总压 <em>P</em></label>
+                    <output id="binaryPressValue">1.000 atm</output>
+                  </div>
+                  <input id="binaryPress" class="range" type="range" min="0.25" max="3" step="0.005" value="1" aria-label="双组分总压" />
+                  <div class="slider-foot"><span>0.25 atm</span><span id="binaryPressSub">101.33 kPa</span><span>3.00 atm</span></div>
+                </div>
+
+                <div class="fixed-pressure is-hidden" id="eutecticPressureInfo">
+                  <span>常压 T–x 切片</span>
+                  <strong>P = 101.325 kPa</strong>
+                  <em>凝聚体系</em>
+                </div>
+
+                <div class="slider-group">
+                  <div class="slider-head">
+                    <label for="binaryComp" id="binaryCompLabel">总组成 <em>z</em></label>
+                    <output id="binaryCompValue">0.300</output>
+                  </div>
+                  <input id="binaryComp" class="range range--amber" type="range" min="0" max="1" step="0.001" value="0.3" aria-label="双组分组成" />
+                  <div class="slider-foot"><span>0.000</span><span id="binaryCompSub">z(乙醇)</span><span>1.000</span></div>
+                </div>
+              </div>
+            </section>
+
+            <section class="control-section">
+              <div class="section-label"><span>经典案例</span><em>PRESETS</em></div>
+              <div class="preset-grid" id="presetGrid"></div>
+            </section>
+
+            <section class="control-section control-section--compact">
+              <div class="section-label"><span>显示</span><em>DISPLAY</em></div>
+              <label class="toggle-row">
+                <span>关键点标注</span>
+                <input id="labelsToggle" type="checkbox" checked />
+                <i aria-hidden="true"></i>
+              </label>
+              <label class="toggle-row">
+                <span>自动旋转</span>
+                <input id="rotateToggle" type="checkbox" />
+                <i aria-hidden="true"></i>
+              </label>
+              <label class="toggle-row">
+                <span>分子视窗</span>
+                <input id="moleculeToggle" type="checkbox" checked />
+                <i aria-hidden="true"></i>
+              </label>
+            </section>
+
+            <div class="panel-note">
+              <span class="note-dot"></span>
+              压强滑杆采用对数刻度；三维深度为分子间距示意轴，不额外计入相律自由度。
+            </div>
+          </div>
+        </aside>
+
+        <aside class="panel panel-right" aria-label="实时数据与知识讲解">
+          <section class="molecule-card" id="moleculeCard">
+            <div class="molecule-head">
+              <span>分子运动 <em>MOLECULAR VIEW</em></span>
+              <span class="phase-pill" id="moleculePhase">液相</span>
+            </div>
+            <div class="molecule-canvas-wrap">
+              <canvas id="moleculeCanvas" aria-label="分子运动三维视窗"></canvas>
+              <div class="molecule-grid" aria-hidden="true"></div>
+              <div class="molecule-scale"><span>1 nm</span><i></i></div>
+            </div>
+            <div class="molecule-foot">
+              <span id="moleculeCaption">短程有序 · 可平动</span>
+              <span id="moleculeSpeed">v ∝ 0.42</span>
+            </div>
+          </section>
+
+          <div class="right-scroll">
+            <section class="phase-hero" id="phaseHero">
+              <div class="phase-hero-top">
+                <span id="phaseEn">LIQUID PHASE</span>
+                <span class="rule-chip" id="phaseRuleChip">F = 2</span>
+              </div>
+              <div class="phase-title-row">
+                <h2 id="phaseName">液相</h2>
+                <span class="phase-swatch" id="phaseSwatch"></span>
+              </div>
+              <p id="phaseInterpretation">当前位于液相单相区。C = 1、P = 1，因此 F = 2：温度与压强可独立改变。</p>
+
+              <div class="lever-mini is-hidden" id="leverMini">
+                <div class="lever-head">
+                  <span>杠杆规则 <em>LEVER RULE</em></span>
+                  <strong id="leverState">L + Cd(s)</strong>
+                </div>
+                <div class="lever-bar" id="leverBar">
+                  <i id="leverPartA"></i>
+                  <i id="leverPartB"></i>
+                </div>
+                <div class="lever-values">
+                  <span><b id="leverNameA">液相</b><strong id="leverValueA">—</strong></span>
+                  <span><b id="leverNameB">Cd(s)</b><strong id="leverValueB">—</strong></span>
+                </div>
+                <div class="lever-formula" id="leverFormula">L = x / x_L</div>
+              </div>
+            </section>
+
+            <div class="right-tabs" role="tablist" aria-label="右侧面板视图">
+              <button id="tabData" class="right-tab is-active" type="button" role="tab" aria-selected="true" data-tab="data">
+                实时数据 <em>DATA</em>
+              </button>
+              <button id="tabKnowledge" class="right-tab" type="button" role="tab" aria-selected="false" data-tab="knowledge">
+                知识讲解 <em>NOTES</em>
+              </button>
+            </div>
+
+            <div class="right-view" id="dataView">
+            <section class="formula-card" aria-label="相律公式">
+              <div class="formula-main">
+                <span class="formula-label">GIBBS PHASE RULE</span>
+                <div class="formula-equation">
+                  F <b>=</b> C <b>−</b> P <b>+</b> 2
+                </div>
+              </div>
+              <div class="formula-values">
+                <div><span>C</span><strong id="formulaC">1</strong><small>组分</small></div>
+                <div><span>P</span><strong id="formulaP">1</strong><small>相数</small></div>
+                <div class="formula-result"><span>F</span><strong id="formulaF">2</strong><small>自由度</small></div>
+              </div>
+              <p class="formula-note" id="formulaNote">单相区：T、P 均可独立改变。</p>
+            </section>
+
+            <section class="data-card">
+              <div class="card-heading"><span>实时热力学数据</span><em>LIVE DATA</em></div>
+              <div class="data-grid" id="dataGrid"></div>
+              <div class="data-footnote" id="dataFootnote">相律基准：F = C − P + 2。</div>
+            </section>
+
+            <section class="freedom-card">
+              <div class="card-heading"><span>自由度分解</span><em>DEGREES OF FREEDOM</em></div>
+              <div class="freedom-visual" id="freedomVisual">
+                <div class="freedom-node"><span>C</span><strong>1</strong></div>
+                <i>−</i>
+                <div class="freedom-node"><span>P</span><strong>1</strong></div>
+                <i>+</i>
+                <div class="freedom-node"><span>2</span><strong>2</strong></div>
+                <i>=</i>
+                <div class="freedom-node freedom-node--result"><span>F</span><strong>2</strong></div>
+              </div>
+              <div class="freedom-hint" id="freedomHint">两个独立强度变量：T 与 P。</div>
+            </section>
+
+            </div>
+
+            <div class="right-view is-hidden" id="knowledgeView">
+              <section class="knowledge-card">
+                <div class="card-heading"><span>知识点</span><em>KNOWLEDGE NOTES</em></div>
+                <div class="knowledge-list" id="knowledgeList"></div>
+              </section>
+
+              <section class="model-card">
+                <div class="card-heading"><span>模型与边界</span><em>MODEL NOTES</em></div>
+                <div class="model-list">
+                  <p><b>单组分 H₂O</b>饱和蒸气压采用 IAPWS Wagner 方程；升华线为 Clausius–Clapeyron 近似；熔化线使用三相点邻域线性化。</p>
+                  <p><b>双组分 VLE</b>Antoine 方程 + NRTL 活度系数描述乙醇–水；苯–甲苯按 Raoult 定律处理。</p>
+                  <p><b>交互判定</b>相边界附近使用 ±0.12 K / ±0.8% P 的窄共存带，只影响状态标签，不改变相律公式。</p>
+                  <p><b>三维深度</b>沿深度方向的体积 / 分子间距为视觉示意，不额外计入 F。</p>
+                </div>
+              </section>
+            </div>
+          </div>
+        </aside>
+
+        <div class="axis-hint">
+          <span><i class="mouse-icon"></i>拖拽旋转</span>
+          <span>滚轮缩放</span>
+          <span>右键平移</span>
+        </div>
+
+        <div class="transport" id="transport">
+          <button id="playBtn" class="play-btn" type="button" aria-pressed="false">
+            <span class="play-icon" id="playIcon">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5.2v13.6L19 12 8 5.2Z"/></svg>
+            </span>
+            <span id="playLabel">自动演示</span>
+          </button>
+          <div class="transport-sep"></div>
+          <button id="resetBtn" class="transport-btn" type="button" title="重置当前模式">
+            <svg viewBox="0 0 24 24" fill="none"><path d="M5.2 9.2A7.2 7.2 0 1 1 5 13.4M5.2 9.2V4.8M5.2 9.2h4.4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            重置
+          </button>
+          <div class="transport-views" role="group" aria-label="视角">
+            <button type="button" data-view="iso" class="is-active">等轴测</button>
+            <button type="button" data-view="front">正视</button>
+            <button type="button" data-view="top">俯视</button>
+          </div>
+          <div class="transport-progress" aria-hidden="true"><i id="progressBar"></i></div>
+          <div class="transport-status" id="transportStatus">手动模式</div>
+        </div>
+
+        <div id="tooltip" class="marker-tooltip" role="status" aria-live="polite"></div>
+        <div id="toast" class="phase-toast" role="status" aria-live="polite">
+          <span class="toast-dot"></span>
+          <span id="toastText">相变</span>
+        </div>
+
+        <div class="corner-meta" aria-hidden="true">
+          <span>THREE.JS / WEBGL</span>
+          <span id="fpsMeter">60 FPS</span>
+        </div>
+      </main>
+
+      <dialog id="helpDialog" class="help-dialog">
+        <div class="dialog-head">
+          <div>
+            <span class="scene-kicker">LAB MANUAL / 教学说明</span>
+            <h2>如何阅读这张相图</h2>
+          </div>
+          <button id="helpClose" class="icon-btn" type="button" aria-label="关闭">
+            <svg viewBox="0 0 24 24" fill="none"><path d="m6 6 12 12M18 6 6 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
+          </button>
+        </div>
+        <div class="dialog-body">
+          <section>
+            <h3>01 · 操作</h3>
+            <p>拖拽旋转三维视角，滚轮缩放，右键平移。拖动滑杆或选择预设时，相图上的状态点、相区颜色、分子运动与右侧数据会同步更新。</p>
+            <p><kbd>Space</kbd> 播放 / 暂停 · <kbd>R</kbd> 重置 · <kbd>1</kbd> 单组分 · <kbd>2</kbd> 双组分 · 双击空白处复位视角。</p>
+          </section>
+          <section>
+            <h3>02 · 相律</h3>
+            <p>吉布斯相律 <strong>F = C − P + 2</strong>。C 为独立组分数，P 为相数，2 对应温度与压强两个强度变量。单组分单相 F = 2，两相共存 F = 1，三相点 F = 0。</p>
+            <p>双组分体系的相律基准为 F = C − P + 2。相图固定总压时相当于增加一个约束，界面同时给出“固定 P 后 f = F − 1”。共沸点还满足 x = y 的附加约束，因此在固定压强下表现为无变量点。</p>
+          </section>
+          <section>
+            <h3>03 · 科学模型</h3>
+            <p>单组分水：饱和蒸气压使用 IAPWS Wagner 方程，升华线使用 Clausius–Clapeyron 近似，熔化线采用三相点附近线性化。三相点 273.16 K / 611.657 Pa，临界点 647.096 K / 22.064 MPa。</p>
+            <p>双组分汽液平衡：乙醇–水使用 Antoine 方程 + NRTL 活度系数模型，可重现约 78.2 °C、x(乙醇) ≈ 0.895 的最低共沸点；苯–甲苯按理想溶液（Raoult 定律）计算。</p>
+            <p>Bi–Cd 低共熔体系：Bi 熔点 271.4 °C、Cd 熔点 321.07 °C；低共熔点约 144 °C、x(Bi) ≈ 0.446（约 60 wt% Bi）。液相线由标准熔点/熔化焓与 Margules 活度系数校正，固相互溶度按简单低共熔模型忽略。</p>
+            <p>为了便于交互，相边界附近设置了很窄的“共存判定带”；它只影响状态标签，不改变相律公式。三维图中的深度轴是分子间距 / 体积的视觉示意，不是独立热力学自由度。</p>
+          </section>
+          <section>
+            <h3>04 · 常见误读</h3>
+            <p>三相点不是常压冰点；临界点不是“沸点”；共沸物不能通过简单蒸馏进一步提纯。相图曲线是平衡态轨迹，真实实验还受成核、过冷与动力学影响。</p>
+          </section>
+        </div>
+      </dialog>
+
+      <div id="loader" class="loader">
+        <div class="loader-mark">
+          <svg viewBox="0 0 64 64" fill="none">
+            <path d="M32 5.5 55 18.8v26.4L32 58.5 9 45.2V18.8L32 5.5Z" stroke="currentColor" stroke-width="1"/>
+            <path d="M32 14 47 22.6v17.8L32 49 17 40.4V22.6L32 14Z" stroke="currentColor" stroke-width=".7" opacity=".4"/>
+            <circle cx="32" cy="32" r="5" fill="currentColor"/>
+            <ellipse cx="32" cy="32" rx="19" ry="7" transform="rotate(-28 32 32)" stroke="currentColor" stroke-width=".8" opacity=".6"/>
+          </svg>
+        </div>
+        <div class="loader-copy">
+          <strong>相衡 <em>PHASE LAB</em></strong>
+          <span>正在构建相平衡拓扑…</span>
+        </div>
+        <div class="loader-bar"><i></i></div>
+      </div>
+    </div>
+  </body>
+</html>
