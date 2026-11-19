@@ -1,0 +1,19 @@
+{
+  "name": "phase-equilibrium-lab",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "相衡 PHASE LAB — 单组分/双组分相平衡三维交互实验室",
+  "scripts": {
+    "dev": "vite --host 127.0.0.1",
+    "build": "vite build",
+    "preview": "vite preview --host 127.0.0.1",
+    "verify": "node scripts/verify-science.mjs"
+  },
+  "dependencies": {
+    "three": "0.187.0"
+  },
+  "devDependencies": {
+    "vite": "8.3.8"
+  }
+}
