@@ -1,7 +1,0 @@
-node_modules/
-dist/
-.pnpm-store/
-.edge-profile/
-.edge-profile-*/
-*.log
-.DS_Store
